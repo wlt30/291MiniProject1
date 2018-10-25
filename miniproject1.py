@@ -4,21 +4,6 @@ import sqlite3
 import getpass
 import os
 
-def createTable(database, dbcursor, table_name, sql_statement):
-    if((sql_statement[0:12]).upper() != "CREATE TABLE"):
-        exit
-    else:
-        database_cursor = database.cursor()
-        try:
-            dbcursor.execute(("drop table if exists " +table_name +";"))
-            dbcursor.execute("PRAGMA foreign_keys = ON;")
-            dbcursor.execute(sql_statement)
-            print("Successfully created table " +table_name +" in the database")
-        except:
-            print("Something went wrong with the format of your command, please try again.")
-    database.commit()
-
-
 def insertValues(database, dbcursor, table_name, sql_statement):
     if((sql_statement[0:11]).upper() != "INSERT INTO"):
         exit
@@ -49,11 +34,8 @@ def entry():
             login_option = 0
             os.system('cls')
         else:
-            print("Invalid entry, please try again")
-            time.sleep(1)
             login_option = int(login_option)
             os.system('cls')
-
     return login_option
 
 def login(dbcursor):
@@ -64,7 +46,7 @@ def login(dbcursor):
     password = getpass.getpass("Password: ")
     # need to verify with Members table from dbcursor
     print("login successful")
-    time.sleep(2)
+    time.sleep(1)
     os.system('cls')
 
 def register(dbcursor):
@@ -80,12 +62,16 @@ def register(dbcursor):
         exitApp()
     password = getpass.getpass("Password: ")
     # ensure unique password against existing Members
-    time.sleep(2)
+    print("Registration successful")
+    time.sleep(1)
     os.system('cls')
     
 def offerRide(dbcursor):
     print("You selected Offer a Ride")
-    
+    dbcursor.execute("SELECT * FROM members")
+    members = dbcursor.fetchall()
+    for member in members:
+        print(member)
     
 def searchForRide(dbcursor):
     print("You selected Search for a Ride")
@@ -107,36 +93,41 @@ def mainMenu(dbcursor):
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\nAt any point, type EXIT to end your session\n")
         if(user_option == "1"):
+            time.sleep(1)
+            os.system('cls')
             offerRide(dbcursor)
         elif(user_option == "2"):
+            time.sleep(1)
+            os.system('cls')
             searchForRide(dbcursor)
         elif(user_option == "3"):
+            time.sleep(1)
+            os.system('cls')
             bookMemberOrCancelBooking(dbcursor)
         elif(user_option == "4"):
+            time.sleep(1)
+            os.system('cls')
             postRideRequest(dbcursor)
         elif(user_option == "5"):
+            time.sleep(1)
+            os.system('cls')
             searchAndDeleteRequest(dbcursor)
         elif(user_option.upper() == "EXIT"):
             exiting = True
         else:
             print("Not a valid option, please try again")
-    time.sleep(1)
-    os.system('cls')
-
 
 def main():
     exiting = False
-    database = sqlite3.connect("myDatabase.db")
+    database = sqlite3.connect("testDatabase.db")
     dbcursor = database.cursor()
-
     login_option = entry()
     if(login_option == 1):
         login(dbcursor)
     else:
         register(dbcursor)
-
     mainMenu(dbcursor)
-    
+    # main activity, will continue to run unless explicitly exited    
     if exiting:
         database.commit()
         database.close()
