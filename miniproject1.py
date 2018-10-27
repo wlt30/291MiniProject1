@@ -17,7 +17,7 @@ def insertValues(database, dbcursor, table_name, sql_statement):
 
 def exitApp():
         os.system("cls")
-        print('EXITING\nThank you for using this App')
+        print('EXITING\nThank you for using this Ride Finder')
         time.sleep(2)
         sys.exit()
 
@@ -39,17 +39,40 @@ def entry():
     return login_option
 
 def login(dbcursor):
-    print("LOGIN")
-    email = input("Email address: ")
-    if(email.upper() == "EXIT"):
-        exitApp()
-    password = getpass.getpass("Password: ")
-    # need to verify with Members table from dbcursor
-    print("login successful")
-    time.sleep(1)
     os.system('cls')
+    validEmail = False
+    validPass = False
+    print("LOGIN\nAt any point, type BACK to go back to Login Options")
+    while not validEmail:
+        email = input("Email address: ")
+        if(email.upper() == "EXIT"):
+            exitApp()
+        if(email.upper() == "BACK"):
+            entry()
+        dbcursor.execute("SELECT email FROM members")
+        emailList = dbcursor.fetchall()
+        for item in emailList:
+            if item[0] == email:
+                validEmail = True
+        if not validEmail:
+            print("An account with that email does not exist, please try again")
+        
+    while not validPass:
+        password = getpass.getpass("Password: ")
+        if(password.upper() == "BACK"):
+                entry()
+        dbcursor.execute("SELECT pwd FROM members WHERE email = \""+email +"\"")
+        correctPass = dbcursor.fetchone()
+        if password == correctPass[0]:
+            validPass = True
+            print("login successful")
+        else:
+            print("Incorrect password, please try again or type BACK to return")
+    
+    time.sleep(1)
 
 def register(dbcursor):
+    os.system('cls')
     print("REGISTER\nPlease provide the following:")
     email = input("Email address: ")
     if(email.upper() == "EXIT"):
@@ -67,6 +90,7 @@ def register(dbcursor):
     os.system('cls')
     
 def offerRide(dbcursor):
+    os.system('cls')
     print("You selected Offer a Ride")
     dbcursor.execute("SELECT * FROM members")
     members = dbcursor.fetchall()
@@ -74,21 +98,26 @@ def offerRide(dbcursor):
         print(member)
     
 def searchForRide(dbcursor):
+    os.system('cls')
     print("You selected Search for a Ride")
     
     
 def bookMemberOrCancelBooking(dbcursor):
+    os.system('cls')
     print("You selected Book Member or Cancel Booking")
     
     
 def postRideRequest(dbcursor):
+    os.system('cls')
     print("You selected Post Ride Request")
     
     
 def searchAndDeleteRequest(dbcursor):
+    os.system('cls')
     print("You selected Search and Delete Ride Request")
 
 def mainMenu(dbcursor):
+    os.system('cls')
     exiting = False
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\nAt any point, type EXIT to end your session\n")
@@ -113,7 +142,7 @@ def mainMenu(dbcursor):
             os.system('cls')
             searchAndDeleteRequest(dbcursor)
         elif(user_option.upper() == "EXIT"):
-            exiting = True
+            exitApp()
         else:
             print("Not a valid option, please try again")
 
@@ -121,6 +150,8 @@ def main():
     exiting = False
     database = sqlite3.connect("testDatabase.db")
     dbcursor = database.cursor()
+    print("Welcome to Ride Finder")
+    time.sleep(1)
     login_option = entry()
     if(login_option == 1):
         login(dbcursor)
