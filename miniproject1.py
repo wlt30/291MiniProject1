@@ -157,9 +157,22 @@ def offerRide(dbcursor):
             continue
         else:
             validDate = True
-    
-            
-        
+    while not validNoSeats:
+        noSeats = input("Enter the number of seats: ")
+        try:
+            noSeats = int(noSeats)
+        except:
+            print("Invalid input format, please try again ")
+            continue
+        validNoSeats = True
+    while not validPricePerSeat:
+        pricePerSeat = input("Enter a price per seat: ")
+        try:
+            pricePerSeat = int(pricePerSeat)
+        except:
+            print("Invalid input format, please try again ")
+            continue
+        validPricePerSeat = True
     
     
 def searchForRide(dbcursor):
