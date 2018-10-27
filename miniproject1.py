@@ -4,17 +4,6 @@ import sqlite3
 import getpass
 import os
 
-def insertValues(database, dbcursor, table_name, sql_statement):
-    if((sql_statement[0:11]).upper() != "INSERT INTO"):
-        exit
-    else:
-        try:
-            dbcursor.execute(sql_statement)
-            print("Successfully inserted values into " +table_name)
-        except:
-            print("Something went wrong with the format of your command, please try again.")
-    database.commit()
-
 def exitApp():
         os.system("cls")
         print('EXITING\nThank you for using this Ride Finder')
@@ -42,22 +31,23 @@ def login(dbcursor):
     os.system('cls')
     validEmail = False
     validPass = False
-    print("LOGIN\nAt any point, type BACK to go back to Login Options")
+    print("LOGIN\nAt any point, type BACK to go back")
     while not validEmail:
+        # receives user input for email and checks the validity of this email address in the database
         email = input("Email address: ")
         if(email.upper() == "EXIT"):
             exitApp()
         if(email.upper() == "BACK"):
             entry()
-        dbcursor.execute("SELECT email FROM members")
+        dbcursor.execute("SELECT email FROM members WHERE email = \""+email +"\"")
         emailList = dbcursor.fetchall()
-        for item in emailList:
-            if item[0] == email:
-                validEmail = True
+        if len(emailList)>0:
+            validEmail = True
         if not validEmail:
             print("An account with that email does not exist, please try again")
         
     while not validPass:
+        # receives hidden user input for password and checks validity of this password for the given email address
         password = getpass.getpass("Password: ")
         if(password.upper() == "BACK"):
                 entry()
@@ -68,26 +58,83 @@ def login(dbcursor):
             print("login successful")
         else:
             print("Incorrect password, please try again or type BACK to return")
-    
+
+    return email
     time.sleep(1)
 
 def register(dbcursor):
     os.system('cls')
     print("REGISTER\nPlease provide the following:")
-    email = input("Email address: ")
-    if(email.upper() == "EXIT"):
-        exitApp()
-    name = input("Name: ")
-    if name.upper() == "EXIT":
-        exitApp()
-    phone = input("Phone: ")
-    if phone.upper() == "EXIT":
-        exitApp()
-    password = getpass.getpass("Password: ")
-    # ensure unique password against existing Members
+    availableEmail = False
+    validName = False
+    validPhone = False
+    validPwd = False
+    while not availableEmail:
+        email = input("Email address(max 15 charcters): ")
+        if(email.upper() == "EXIT"):
+            exitApp()
+        if(email.upper() == "BACK"):
+            entry()
+        if len(email)>15:
+            print("Entered email too long, please try again")
+            continue
+        elif len(email)==0:
+            continue
+        dbcursor.execute("SELECT email FROM members WHERE email = \""+email +"\"")
+        emailList = dbcursor.fetchall()
+        if len(emailList)==0:
+            availableEmail = True
+        if not availableEmail:
+            print("An account with that email already exists")
+            
+    while not validName:
+        name = input("Name (max 20 characters): ")
+        if(name.upper() == "EXIT"):
+            exitApp()
+        if(name.upper() == "BACK"):
+            entry()
+        if len(name)>20:
+            print("Entered name is too long, please try again")
+            continue
+        elif len(name)==0:
+            continue
+        else:
+            validName = True
+    
+    while not validPhone:
+        phone = input("Phone (e.g.123-555-1234): ")
+        if(phone.upper() == "EXIT"):
+            exitApp()
+        if(phone.upper() == "BACK"):
+            entry()
+        if len(phone)>12:
+            print("Entered phone number too long, please try again")
+            continue
+        if len(phone)<12:
+            print("Entered phone number too short or incorrect format, please try again\n(e.g.123-555-1234)")
+            continue
+        elif len(phone)==0:
+            continue
+        else:
+            validPhone = True
+
+    while not validPwd:
+        password = getpass.getpass("Password (max 6 characters): ")
+        if(password.upper() == "EXIT"):
+            exitApp()
+        if(password.upper() == "BACK"):
+            entry()
+        if len(password)>6:
+            print("Entered password number too long, please try again")
+            continue
+        elif len(password)==0:
+            continue
+        else:
+            validPwd = True
+
+    dbcursor.execute("INSERT INTO members VALUES (\""+email+"\",\""+name+"\",\""+phone+"\",\""+password+"\")")
     print("Registration successful")
-    time.sleep(1)
-    os.system('cls')
+    return email
     
 def offerRide(dbcursor):
     os.system('cls')
@@ -116,31 +163,29 @@ def searchAndDeleteRequest(dbcursor):
     os.system('cls')
     print("You selected Search and Delete Ride Request")
 
-def mainMenu(dbcursor):
+def mainMenu(dbcursor, member):
     os.system('cls')
     exiting = False
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\nAt any point, type EXIT to end your session\n")
         if(user_option == "1"):
             time.sleep(1)
-            os.system('cls')
             offerRide(dbcursor)
         elif(user_option == "2"):
             time.sleep(1)
-            os.system('cls')
             searchForRide(dbcursor)
         elif(user_option == "3"):
             time.sleep(1)
-            os.system('cls')
             bookMemberOrCancelBooking(dbcursor)
         elif(user_option == "4"):
             time.sleep(1)
-            os.system('cls')
             postRideRequest(dbcursor)
         elif(user_option == "5"):
             time.sleep(1)
-            os.system('cls')
             searchAndDeleteRequest(dbcursor)
+        elif(user_option == "6"):
+            time.sleep(1)
+            entry()
         elif(user_option.upper() == "EXIT"):
             exitApp()
         else:
@@ -154,10 +199,11 @@ def main():
     time.sleep(1)
     login_option = entry()
     if(login_option == 1):
-        login(dbcursor)
+        member = login(dbcursor)
     else:
-        register(dbcursor)
-    mainMenu(dbcursor)
+        member = register(dbcursor)
+        database.commit()
+    mainMenu(dbcursor, member)
     # main activity, will continue to run unless explicitly exited    
     if exiting:
         database.commit()
