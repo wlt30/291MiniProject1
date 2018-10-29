@@ -150,18 +150,15 @@ def offerRide(dbcursor):
     validDst = False
     car_no = -1
     enroutes = []
-    lcodes = getLCodes(dbcursor)
-    cities = getCities(dbcuror)
-    provs = getProvs(dbcursor)
-    addresses = getAddresses(dbcursor)
 
     while not validDate:
-        date = input("Enter ride date (e.g. 2018-01-01): ")
-        if (len(date) != 10) or(date[4]!="-") or date(date[7]!='-'):
+        date = input("Enter ride date (e.g. YYYY-MM-DD): ")
+        if (len(date) != 10) or (date[4]!="-") or (date[7]!='-'):
             print("Invalid date format, please try again (e.g. 2018-01-01)")
             continue
         else:
-            validDate = True
+             validDate = True
+                                                                                                
     while not validNoSeats:
         noSeats = input("Enter the number of seats: ")
         try:
@@ -170,6 +167,7 @@ def offerRide(dbcursor):
             print("Invalid input format, please try again ")
             continue
         validNoSeats = True
+                                                                                                
     while not validPricePerSeat:
         pricePerSeat = input("Enter a price per seat: ")
         try:
@@ -178,18 +176,47 @@ def offerRide(dbcursor):
             print("Invalid input format, please try again ")
             continue
         validPricePerSeat = True
+                                                                                                
     while not validLugDesc:
         lugDesc = input("Enter a luggage description (max 10 characters): ")
         if len(lugDesc) >10 or len(lugDesc)==0:
             print("Invalid input format, please try again ")
             continue
         validLugDesc = True
+                                                                                                
     while not validSrc:
-        src = input("Enter a source location (max 16 characters): ")
-        if len(src) >5 or len(src)==0:
+        entry = input("Enter a source location (max 16 characters): ")
+        if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
-        srclcode = dbcursor.execute("SELECT lcode FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")     
+        dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
+        srcOptions = dbcursor.fetchall()
+        noMenus = (len(srcOptions)%5)+1
+        validSrcChoice = False
+        if len(srcOptions)>1:
+            for page in range(0,noMenus):
+                for x in range(page*5,page*5+5):
+                        try:
+                            print(str(x+1) +". " +str(srcOptions[x]))
+                        except:
+                            continue
+                while not validSrcChoice:
+                    choice = input("Please select location by option number or press ENTER for more options")
+                    if choice == '\n':
+                        continue
+                    try:
+                        choice = int(choice) -1
+                        validSrcChoice = True
+                        break
+                    except:
+                        print("Invalid selection")
+                break
+            src = srcOptions[choice]
+        else:
+            src = srcOptions[0]
+
+
+        
     while not validDst:
         dst = input("Enter a destination location (max 16 characters): ")
         if len(dst) >5 or len(dst)==0:
@@ -223,19 +250,19 @@ def mainMenu(dbcursor, member):
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\n6.Logout\nAt any point, type EXIT to end your session\n")
         if(user_option == "1"):
-            time.sleep(1)
+            time.sleep(0.5)
             offerRide(dbcursor)
         elif(user_option == "2"):
-            time.sleep(1)
+            time.sleep(0.5)
             searchForRide(dbcursor)
         elif(user_option == "3"):
-            time.sleep(1)
+            time.sleep(0.5)
             bookMemberOrCancelBooking(dbcursor)
         elif(user_option == "4"):
-            time.sleep(1)
+            time.sleep(0.5)
             postRideRequest(dbcursor)
         elif(user_option == "5"):
-            time.sleep(1)
+            time.sleep(0.5)
             searchAndDeleteRequest(dbcursor)
         elif(user_option == "6"):
             print("Logging out...")
@@ -252,7 +279,7 @@ def main():
     database = sqlite3.connect("testDatabase.db")
     dbcursor = database.cursor()
     print("Welcome to Ride Finder")
-    time.sleep(1)
+    time.sleep(0.5)
     login_option = entry()
     if(login_option == 1):
         member = login(dbcursor)
