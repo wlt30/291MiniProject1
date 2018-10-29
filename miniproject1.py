@@ -4,9 +4,10 @@ import sqlite3
 import getpass
 import os
 import datetime
+import searchRides
 
 def exitApp():
-        os.system("cls")
+        os.system("clear")
         print('EXITING\nThank you for using this Ride Finder')
         time.sleep(2)
         sys.exit()
@@ -22,14 +23,14 @@ def entry():
             print("Invalid entry, please try again")
             time.sleep(1)
             login_option = 0
-            os.system('cls')
+            os.system('clear')
         else:
             login_option = int(login_option)
-            os.system('cls')
+            os.system('clear')
     return login_option
 
 def login(dbcursor):
-    os.system('cls')
+    os.system('clear')
     validEmail = False
     validPass = False
     print("LOGIN\nAt any point, type BACK to go back")
@@ -66,7 +67,7 @@ def login(dbcursor):
     time.sleep(1)
 
 def register(dbcursor):
-    os.system('cls')
+    os.system('clear')
     print("REGISTER\nPlease provide the following:")
     availableEmail = False
     validName = False
@@ -140,7 +141,7 @@ def register(dbcursor):
     return email
 
 def offerRide(dbcursor):
-    os.system('cls')
+    os.system('clear')
     print("Offer a Ride")
     validDate = False
     validNoSeats = False
@@ -198,13 +199,9 @@ def offerRide(dbcursor):
         validDst = True
 
 
-def searchForRide(dbcursor):
-    os.system('cls')
-    print("Search for a Ride")
-
 #Working on bookings
 def Bookings(dbcursor,member): #Assume member passed it the user email logged on
-    os.system('cls')
+    os.system('clear')
     Finished = False
     while not Finished:
         user_input= input("What would you like to do?\n1.List Current Bookings You Offer\n2.List Other Members Bookings\n 3.Book Rides\n4.Cancel Bookings\n5.Finished")
@@ -223,16 +220,16 @@ def Bookings(dbcursor,member): #Assume member passed it the user email logged on
 
 
 def postRideRequest(dbcursor):
-    os.system('cls')
+    os.system('clear')
     print("Post Ride Request")
 
 
 def searchAndDeleteRequest(dbcursor):
-    os.system('cls')
+    os.system('clear')
     print("Search and Delete Ride Request")
 
 def mainMenu(dbcursor, member):
-    os.system('cls')
+    os.system('clear')
     exiting = False
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\n6.Logout\nAt any point, type EXIT to end your session\n")
@@ -241,7 +238,8 @@ def mainMenu(dbcursor, member):
             offerRide(dbcursor)
         elif(user_option == "2"):
             time.sleep(1)
-            searchForRide(dbcursor)
+            os.system('clear')
+            searchRides.searchForRide(dbcursor)
         elif(user_option == "3"):
             time.sleep(1)
             Bookings(dbcursor,member)
@@ -254,7 +252,7 @@ def mainMenu(dbcursor, member):
         elif(user_option == "6"):
             print("Logging out...")
             time.sleep(1)
-            os.system('cls')
+            os.system('clear')
             main()
         elif(user_option.upper() == "EXIT"):
             exitApp()
