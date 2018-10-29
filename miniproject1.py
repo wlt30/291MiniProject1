@@ -34,6 +34,7 @@ def login(dbcursor):
     validPass = False
     print("LOGIN\nAt any point, type BACK to go back")
     while not validEmail:
+        # receives user input for email and checks the validity of this email address in the database
         email = input("Email address: ")
         if(email.upper() == "EXIT"):
             exitApp()
@@ -46,8 +47,9 @@ def login(dbcursor):
             validEmail = True
         if not validEmail:
             print("An account with that email does not exist, please try again")
-        
+
     while not validPass:
+        # receives hidden user input for password and checks validity of this password for the given email address
         password = getpass.getpass("Password: ")
         if(password.upper() == "BACK"):
                 entry()
@@ -87,7 +89,7 @@ def register(dbcursor):
             availableEmail = True
         if not availableEmail:
             print("An account with that email already exists")
-            
+
     while not validName:
         name = input("Name (max 20 characters): ")
         if(name.upper() == "EXIT"):
@@ -101,7 +103,7 @@ def register(dbcursor):
             continue
         else:
             validName = True
-    
+
     while not validPhone:
         phone = input("Phone (e.g.123-555-1234): ")
         if(phone.upper() == "EXIT"):
@@ -214,30 +216,44 @@ def offerRide(dbcursor):
             src = srcOptions[0]
 
 
-        
+       
     while not validDst:
         dst = input("Enter a destination location (max 16 characters): ")
         if len(dst) >5 or len(dst)==0:
             print("Invalid input format, please try again ")
             continue
         validDst = True
-        
-    
+
+
 def searchForRide(dbcursor):
     os.system('cls')
     print("Search for a Ride")
-    
-    
-def bookMemberOrCancelBooking(dbcursor):
+
+#Working on bookings
+def Bookings(dbcursor,member): #Assume member passed it the user email logged on
     os.system('cls')
-    print("Book Member or Cancel Booking")
-    
-    
+    Finished = False
+    while not Finished:
+        user_input= input("What would you like to do?\n1.List Current Bookings You Offer\n2.List Other Members Bookings\n 3.Book Rides\n4.Cancel Bookings\n5.Finished")
+        if(user_input == "1"):
+            print("Listing current booking you offer\n");
+            dbcursor.execute("SELECT * FROM rides where rides.driver = ?", member)
+            #Have a for loop that knows length of current bookings & prints booking 5 at a time
+            #TEST option 1 & Correct
+            #Proceed with listing other  member rides afterwards, except current member
+        elif(use_input == "5"):
+            print("Returning to the Main Menu\n")
+            Finished = True
+
+        else:
+            print("Not a valid option please try again\n")
+
+
 def postRideRequest(dbcursor):
     os.system('cls')
     print("Post Ride Request")
-    
-    
+
+
 def searchAndDeleteRequest(dbcursor):
     os.system('cls')
     print("Search and Delete Ride Request")
@@ -255,7 +271,7 @@ def mainMenu(dbcursor, member):
             searchForRide(dbcursor)
         elif(user_option == "3"):
             time.sleep(0.5)
-            bookMemberOrCancelBooking(dbcursor)
+            Bookings(dbcursor,member)
         elif(user_option == "4"):
             time.sleep(0.5)
             postRideRequest(dbcursor)
@@ -285,7 +301,7 @@ def main():
         member = register(dbcursor)
         database.commit()
     mainMenu(dbcursor, member)
-    # main activity, will continue to run unless explicitly exited    
+    # main activity, will continue to run unless explicitly exited
     if exiting:
         database.commit()
         database.close()
