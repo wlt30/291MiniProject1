@@ -138,7 +138,7 @@ def register(dbcursor):
     dbcursor.execute("INSERT INTO members VALUES (\""+email+"\",\""+name+"\",\""+phone+"\",\""+password+"\")")
     print("Registration successful")
     return email
-    
+
 def offerRide(dbcursor):
     os.system('cls')
     print("Offer a Ride")
@@ -150,9 +150,14 @@ def offerRide(dbcursor):
     validDst = False
     car_no = -1
     enroutes = []
+    lcodes = getLCodes(dbcursor)
+    cities = getCities(dbcuror)
+    provs = getProvs(dbcursor)
+    addresses = getAddresses(dbcursor)
+
     while not validDate:
         date = input("Enter ride date (e.g. 2018-01-01): ")
-        if len(date) != 10:
+        if (len(date) != 10) or(date[4]!="-") or date(date[7]!='-'):
             print("Invalid date format, please try again (e.g. 2018-01-01)")
             continue
         else:
@@ -173,7 +178,25 @@ def offerRide(dbcursor):
             print("Invalid input format, please try again ")
             continue
         validPricePerSeat = True
-    
+    while not validLugDesc:
+        lugDesc = input("Enter a luggage description (max 10 characters): ")
+        if len(lugDesc) >10 or len(lugDesc)==0:
+            print("Invalid input format, please try again ")
+            continue
+        validLugDesc = True
+    while not validSrc:
+        src = input("Enter a source location (max 16 characters): ")
+        if len(src) >5 or len(src)==0:
+            print("Invalid input format, please try again ")
+            continue
+        srclcode = dbcursor.execute("SELECT lcode FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")     
+    while not validDst:
+        dst = input("Enter a destination location (max 16 characters): ")
+        if len(dst) >5 or len(dst)==0:
+            print("Invalid input format, please try again ")
+            continue
+        validDst = True
+        
     
 def searchForRide(dbcursor):
     os.system('cls')
