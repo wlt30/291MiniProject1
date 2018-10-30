@@ -222,7 +222,7 @@ def offerRide(dbcursor, member):
                 if x//5 > 0:
                     choice = input("")
                     if choice.isdigit():
-                        src = srcOptions[int(choice)-1]
+                        src = srcOptions[int(choice)-1][0]
                         validSrc = True
                         break
                     elif choice == "":
@@ -234,7 +234,8 @@ def offerRide(dbcursor, member):
                         x = 0
                         continue    
         elif(len(srcOptions)==1):
-            src = srcOptions[0]
+            src = srcOptions[0][0]
+            print(srcOptions)
             validSrc = True
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
@@ -259,7 +260,7 @@ def offerRide(dbcursor, member):
                 if x//5 > 0:
                     choice = input("")
                     if choice.isdigit():
-                        dst = dstOptions[int(choice)-1]
+                        dst = dstOptions[int(choice)-1][0]
                         validDst = True
                         break
                     elif choice == "":
@@ -271,7 +272,8 @@ def offerRide(dbcursor, member):
                         x = 0
                         continue    
         elif(len(dstOptions)==1):
-            dst = dstOptions[0]
+            dst = dstOptions[0][0]
+            print(dstOptions)
             validDst = True
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
@@ -314,6 +316,7 @@ def offerRide(dbcursor, member):
                         continue    
         elif(len(stopOptions)==1):
             enroutes.append(stopOptions[0])
+            print(stopOptions)
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
         
@@ -340,7 +343,9 @@ def offerRide(dbcursor, member):
             continue
 
     dbcursor.execute("INSERT INTO rides VALUES (\""+rno+"\", \""+pricePerSeat+"\", \""+date+"\", \""+noSeats+"\", \""+lugDesc+"\", \""+str(src)+"\", \""+str(dst)+"\", \""+driver+"\", \""+cno+"\")")
-    
+    for item in enroutes:
+        dbcursor.execute("INSERT INTO enroute VALUES (\"" +rno+"\", \""+item[0]+"\")")
+    os.system('cls')
                 
         
     
@@ -363,7 +368,7 @@ def searchAndDeleteRequest(dbcursor):
     os.system('cls')
     print("Search and Delete Ride Request")
 
-def mainMenu(dbcursor, member):
+def mainMenu(database, dbcursor, member):
     os.system('cls')
     exiting = False
     while not exiting:
@@ -371,6 +376,7 @@ def mainMenu(dbcursor, member):
         if(user_option == "1"):
             time.sleep(0.5)
             offerRide(dbcursor, member)
+            database.commit()
         elif(user_option == "2"):
             time.sleep(0.5)
             searchForRide(dbcursor)
@@ -404,9 +410,9 @@ def main():
         member = login(dbcursor)
     else:
         member = register(dbcursor)
-        database.commit()
+        
     while not exiting:
-        mainMenu(dbcursor, member)
+        mainMenu(database, dbcursor, member)
         database.commit()
     # main activity, will continue to run unless explicitly exited    
     if exiting:
