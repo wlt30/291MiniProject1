@@ -139,43 +139,64 @@ def register(dbcursor):
     print("Registration successful")
     return email
 
-def offerRide(dbcursor):
+def offerRide(dbcursor, member):
     os.system('cls')
     print("Offer a Ride")
+    driver = str(member)
+    dbcursor.execute("SELECT MAX(rno) FROM rides")
+    rno = str(int(dbcursor.fetchone()[0]) + 1)
     validDate = False
     validNoSeats = False
     validPricePerSeat = False
     validLugDesc = False
     validSrc = False
     validDst = False
-    car_no = -1
+    validCar = False
+    validEnroutes = False
     enroutes = []
 
     while not validDate:
         date = input("Enter ride date (e.g. YYYY-MM-DD): ")
-        if (len(date) != 10) or (date[4]!="-") or (date[7]!='-'):
-            print("Invalid date format, please try again (e.g. 2018-01-01)")
+        if (len(date) != 10) or (date[4]!="-") or (date[7]!='-') or not (date[0:4].isdigit()) or not (date[5:7].isdigit()) or  not (date[8:10].isdigit()):
+            print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
             continue
         else:
-             validDate = True
+            year = int(date[0:4])
+            month = int(date[5:7])
+            day = int(date[8:10])
+            if (month > 12) or (month < 1) or (day < 1) or (day>31):
+                print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
+                continue
+            if(month==4)or(month==6)or(month==9)or(month==11):
+                if day>30:
+                    print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
+                    continue
+            if(month==2):
+                if(year%4 == 0):
+                    if day>29:
+                        print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
+                        continue
+                elif day>28:
+                    print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
+                    continue
+            validDate = True
                                                                                                 
     while not validNoSeats:
         noSeats = input("Enter the number of seats: ")
-        try:
-            noSeats = int(noSeats)
-        except:
+        if noSeats.isdigit():
+            validNoSeats = True
+        else:
             print("Invalid input format, please try again ")
             continue
-        validNoSeats = True
                                                                                                 
     while not validPricePerSeat:
         pricePerSeat = input("Enter a price per seat: ")
-        try:
-            pricePerSeat = int(pricePerSeat)
-        except:
+        if pricePerSeat.isdigit():
+            validPricePerSeat = True
+        else:
             print("Invalid input format, please try again ")
             continue
-        validPricePerSeat = True
+        
                                                                                                 
     while not validLugDesc:
         lugDesc = input("Enter a luggage description (max 10 characters): ")
@@ -189,42 +210,148 @@ def offerRide(dbcursor):
         if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
+        
         dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
         srcOptions = dbcursor.fetchall()
-        noMenus = (len(srcOptions)%5)+1
-        validSrcChoice = False
-        if len(srcOptions)>1:
-            for page in range(0,noMenus):
-                for x in range(page*5,page*5+5):
-                        try:
-                            print(str(x+1) +". " +str(srcOptions[x]))
-                        except:
-                            continue
-                while not validSrcChoice:
-                    choice = input("Please select location by option number or press ENTER for more options")
-                    if choice == '\n':
-                        continue
-                    try:
-                        choice = int(choice) -1
-                        validSrcChoice = True
+        x = 0
+        if(len(srcOptions)>1):
+            print("Please select source location by option number or press ENTER for more options")
+            while x < len(srcOptions):
+                try:
+                    print(str(x+1) +". " +str(srcOptions[x]))
+                    x = x+1
+                except:
+                    continue
+                if x//5 > 0:
+                    choice = input("")
+                    if choice.isdigit():
+                        src = srcOptions[int(choice)-1][0]
+                        validSrc = True
                         break
-                    except:
-                        print("Invalid selection")
-                break
-            src = srcOptions[choice]
+                    elif choice == "":
+                        if x+1 > len(srcOptions):
+                            x = 0
+                        continue
+                    else:
+                        print("Invalid choice, please try again")
+                        x = 0
+                        continue    
+        elif(len(srcOptions)==1):
+            src = srcOptions[0][0]
+            print(srcOptions)
+            validSrc = True
         else:
-            src = srcOptions[0]
-
-
-       
+            print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
+            continue
+    
     while not validDst:
-        dst = input("Enter a destination location (max 16 characters): ")
-        if len(dst) >5 or len(dst)==0:
+        entry = input("Enter a destination location (max 16 characters): ")
+        if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
-        validDst = True
+        dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
+        dstOptions = dbcursor.fetchall()
+        x = 0
+        if(len(dstOptions)>1):
+            print("Please select destination location by option number or press ENTER for more options")
+            while x < len(dstOptions):
+                try:
+                    print(str(x+1) +". " +str(dstOptions[x]))
+                    x = x+1
+                except:
+                    continue
+                if x//5 > 0:
+                    choice = input("")
+                    if choice.isdigit():
+                        dst = dstOptions[int(choice)-1][0]
+                        validDst = True
+                        break
+                    elif choice == "":
+                        if x+1 > len(dstOptions):
+                            x = 0
+                        continue
+                    else:
+                        print("Invalid choice, please try again")
+                        x = 0
+                        continue    
+        elif(len(dstOptions)==1):
+            dst = dstOptions[0][0]
+            print(dstOptions)
+            validDst = True
+        else:
+            print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
 
 
+
+    while not validEnroutes:
+        stop = input("Enter an enroute location (max 16 characters) or press ENTER to continue: ")
+        if len(stop) >16:
+            print("Invalid input format, please try again ")
+            continue
+
+        if stop == "":
+            validEnroutes = True
+            ## only way to pass this step
+            continue
+        
+        dbcursor.execute("SELECT * FROM locations  WHERE lcode LIKE \"%"+stop+"%\"  OR city LIKE \"%"+stop+"%\" OR prov LIKE \"%"+stop+"%\" OR address LIKE \"%"+stop+"%\"")
+        stopOptions = dbcursor.fetchall()
+        x = 0
+        if(len(stopOptions)>1):
+            print("Please select enroute location by option number or press ENTER for more options")
+            while x < len(stopOptions):
+                try:
+                    print(str(x+1) +". " +str(stopOptions[x]))
+                    x = x+1
+                except:
+                    continue
+                if x//5 > 0:
+                    choice = input("")
+                    if choice.isdigit():
+                        stop = stopOptions[int(choice)-1]
+                        enroutes.append(stop)
+                        break
+                    elif choice == "":
+                        if x+1 > len(stopOptions):
+                            x = 0
+                        continue
+                    else:
+                        print("Invalid choice, please try again")
+                        x = 0
+                        continue    
+        elif(len(stopOptions)==1):
+            enroutes.append(stopOptions[0])
+            print(stopOptions)
+        else:
+            print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
+        
+
+    while not validCar:
+        cno = input("Please enter a car number or press ENTER to skip: ")
+        if cno.isdigit():
+            #prevents SQL injection because car_no cannot be "cno" and still get into this SQL call
+            dbcursor.execute("SELECT cno FROM cars WHERE cno = \"" +cno+ "\"")
+            cars = dbcursor.fetchall()
+            if len(cars) == 0:
+                print("That car was not found, please try again")
+                continue
+            elif len(cars) == 1:
+                validCar = True
+            else:
+                print("Something went wrong, please try again")
+                continue
+        elif cno == "":
+            validCar= True
+            cno = "NULL"
+        else:
+            print("Something went wrong, please try again")
+            continue
+
+    dbcursor.execute("INSERT INTO rides VALUES (\""+rno+"\", \""+pricePerSeat+"\", \""+date+"\", \""+noSeats+"\", \""+lugDesc+"\", \""+str(src)+"\", \""+str(dst)+"\", \""+driver+"\", \""+cno+"\")")
+    for item in enroutes:
+        dbcursor.execute("INSERT INTO enroute VALUES (\"" +rno+"\", \""+item[0]+"\")")
+    os.system('cls')
+                
 def searchForRide(dbcursor):
     os.system('cls')
     print("Search for a Ride")
@@ -258,20 +385,23 @@ def searchAndDeleteRequest(dbcursor):
     os.system('cls')
     print("Search and Delete Ride Request")
 
-def mainMenu(dbcursor, member):
+def mainMenu(database, dbcursor, member):
     os.system('cls')
     exiting = False
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\n6.Logout\nAt any point, type EXIT to end your session\n")
         if(user_option == "1"):
             time.sleep(0.5)
-            offerRide(dbcursor)
+            offerRide(dbcursor, member)
+            database.commit()
         elif(user_option == "2"):
             time.sleep(0.5)
             searchForRide(dbcursor)
         elif(user_option == "3"):
+
             time.sleep(0.5)
             Bookings(dbcursor,member)
+
         elif(user_option == "4"):
             time.sleep(0.5)
             postRideRequest(dbcursor)
@@ -299,9 +429,12 @@ def main():
         member = login(dbcursor)
     else:
         member = register(dbcursor)
+        
+    while not exiting:
+        mainMenu(database, dbcursor, member)
         database.commit()
-    mainMenu(dbcursor, member)
     # main activity, will continue to run unless explicitly exited
+
     if exiting:
         database.commit()
         database.close()
