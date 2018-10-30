@@ -210,7 +210,7 @@ def offerRide(dbcursor, member):
         if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
-<<<<<<< HEAD
+        
         dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
         srcOptions = dbcursor.fetchall()
         x = 0
@@ -244,9 +244,6 @@ def offerRide(dbcursor, member):
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
             continue
     
-=======
-        srclcode = dbcursor.execute("SELECT lcode FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
->>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
     while not validDst:
         entry = input("Enter a destination location (max 16 characters): ")
         if len(entry) >16 or len(entry)==0:
@@ -285,12 +282,13 @@ def offerRide(dbcursor, member):
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
 
 
+
     while not validEnroutes:
         stop = input("Enter an enroute location (max 16 characters) or press ENTER to continue: ")
         if len(stop) >16:
             print("Invalid input format, please try again ")
             continue
-<<<<<<< HEAD
+
         if stop == "":
             validEnroutes = True
             ## only way to pass this step
@@ -354,13 +352,6 @@ def offerRide(dbcursor, member):
         dbcursor.execute("INSERT INTO enroute VALUES (\"" +rno+"\", \""+item[0]+"\")")
     os.system('cls')
                 
-        
-    
-=======
-        validDst = True
-
-
->>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
 def searchForRide(dbcursor):
     os.system('cls')
     print("Search for a Ride")
@@ -407,13 +398,10 @@ def mainMenu(database, dbcursor, member):
             time.sleep(0.5)
             searchForRide(dbcursor)
         elif(user_option == "3"):
-<<<<<<< HEAD
+
             time.sleep(0.5)
-            bookMemberOrCancelBooking(dbcursor)
-=======
-            time.sleep(1)
             Bookings(dbcursor,member)
->>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
+
         elif(user_option == "4"):
             time.sleep(0.5)
             postRideRequest(dbcursor)
@@ -445,12 +433,8 @@ def main():
     while not exiting:
         mainMenu(database, dbcursor, member)
         database.commit()
-<<<<<<< HEAD
-    # main activity, will continue to run unless explicitly exited    
-=======
-    mainMenu(dbcursor, member)
     # main activity, will continue to run unless explicitly exited
->>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
+
     if exiting:
         database.commit()
         database.close()
