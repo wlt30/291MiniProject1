@@ -34,6 +34,7 @@ def login(dbcursor):
     validPass = False
     print("LOGIN\nAt any point, type BACK to go back")
     while not validEmail:
+        # receives user input for email and checks the validity of this email address in the database
         email = input("Email address: ")
         if(email.upper() == "EXIT"):
             exitApp()
@@ -46,8 +47,9 @@ def login(dbcursor):
             validEmail = True
         if not validEmail:
             print("An account with that email does not exist, please try again")
-        
+
     while not validPass:
+        # receives hidden user input for password and checks validity of this password for the given email address
         password = getpass.getpass("Password: ")
         if(password.upper() == "BACK"):
                 entry()
@@ -87,7 +89,7 @@ def register(dbcursor):
             availableEmail = True
         if not availableEmail:
             print("An account with that email already exists")
-            
+
     while not validName:
         name = input("Name (max 20 characters): ")
         if(name.upper() == "EXIT"):
@@ -101,7 +103,7 @@ def register(dbcursor):
             continue
         else:
             validName = True
-    
+
     while not validPhone:
         phone = input("Phone (e.g.123-555-1234): ")
         if(phone.upper() == "EXIT"):
@@ -208,6 +210,7 @@ def offerRide(dbcursor, member):
         if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
+<<<<<<< HEAD
         dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
         srcOptions = dbcursor.fetchall()
         x = 0
@@ -241,6 +244,9 @@ def offerRide(dbcursor, member):
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
             continue
     
+=======
+        srclcode = dbcursor.execute("SELECT lcode FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
+>>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
     while not validDst:
         entry = input("Enter a destination location (max 16 characters): ")
         if len(entry) >16 or len(entry)==0:
@@ -284,6 +290,7 @@ def offerRide(dbcursor, member):
         if len(stop) >16:
             print("Invalid input format, please try again ")
             continue
+<<<<<<< HEAD
         if stop == "":
             validEnroutes = True
             ## only way to pass this step
@@ -349,21 +356,40 @@ def offerRide(dbcursor, member):
                 
         
     
+=======
+        validDst = True
+
+
+>>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
 def searchForRide(dbcursor):
     os.system('cls')
     print("Search for a Ride")
-    
-    
-def bookMemberOrCancelBooking(dbcursor):
+
+#Working on bookings
+def Bookings(dbcursor,member): #Assume member passed it the user email logged on
     os.system('cls')
-    print("Book Member or Cancel Booking")
-    
-    
+    Finished = False
+    while not Finished:
+        user_input= input("What would you like to do?\n1.List Current Bookings You Offer\n2.List Other Members Bookings\n 3.Book Rides\n4.Cancel Bookings\n5.Finished")
+        if(user_input == "1"):
+            print("Listing current booking you offer\n");
+            dbcursor.execute("SELECT * FROM rides where rides.driver = ?", member)
+            #Have a for loop that knows length of current bookings & prints booking 5 at a time
+            #TEST option 1 & Correct
+            #Proceed with listing other  member rides afterwards, except current member
+        elif(use_input == "5"):
+            print("Returning to the Main Menu\n")
+            Finished = True
+
+        else:
+            print("Not a valid option please try again\n")
+
+
 def postRideRequest(dbcursor):
     os.system('cls')
     print("Post Ride Request")
-    
-    
+
+
 def searchAndDeleteRequest(dbcursor):
     os.system('cls')
     print("Search and Delete Ride Request")
@@ -381,8 +407,13 @@ def mainMenu(database, dbcursor, member):
             time.sleep(0.5)
             searchForRide(dbcursor)
         elif(user_option == "3"):
+<<<<<<< HEAD
             time.sleep(0.5)
             bookMemberOrCancelBooking(dbcursor)
+=======
+            time.sleep(1)
+            Bookings(dbcursor,member)
+>>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
         elif(user_option == "4"):
             time.sleep(0.5)
             postRideRequest(dbcursor)
@@ -414,7 +445,12 @@ def main():
     while not exiting:
         mainMenu(database, dbcursor, member)
         database.commit()
+<<<<<<< HEAD
     # main activity, will continue to run unless explicitly exited    
+=======
+    mainMenu(dbcursor, member)
+    # main activity, will continue to run unless explicitly exited
+>>>>>>> de44f03b38844494b36ca32250eb223a36f5e050
     if exiting:
         database.commit()
         database.close()
