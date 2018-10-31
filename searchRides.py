@@ -20,6 +20,10 @@ def searchForRide(dbcursor):
             os.system('clear')
             sys.exit()
 
+        elif userInput.upper() == "BACK":
+            os.system("clear")
+            return
+
         keywords = userInput.split(" ")
         keywords = list(filter(None, keywords)) #filtering list https://stackoverflow.com/questions/16099694/how-to-remove-empty-string-in-a-list/16099706
         if len(keywords) > 3 or len(keywords) < 1:
@@ -28,26 +32,27 @@ def searchForRide(dbcursor):
 
         #For each line we want to query all rides with the relevant key words
         for word in keywords:
+            temporaryridelist = []
             #Lets check if it is a relevant location code for source
             queryString = ("SELECT rno, price, rdate, seats, lugDesc, l1.city, l2.city, driver, cno FROM locations l1, locations l2, rides \
                                                    WHERE l1.lcode LIKE '%s' AND l1.lcode = src AND l2.lcode = dst" % word)  #LIKE is case insensitive
             dbcursor.execute(queryString)
             results = dbcursor.fetchall()
-            ridelist = ridelist + results #append the results to ride list
+            temporaryridelist = temporaryridelist + results #append the results to ride list
 
             #check if it is a relevant location code for destination
             queryString = ("SELECT rno, price, rdate, seats, lugDesc, l2.city, l1.city, driver, cno FROM locations l1, locations l2, rides \
                                        WHERE l1.lcode LIKE '%s' AND l1.lcode = dst AND l2.lcode = src" % word)  # LIKE is case insensitive
             dbcursor.execute(queryString)
             results = dbcursor.fetchall()
-            ridelist = ridelist + results
+            temporaryridelist = temporaryridelist + results
 
             # check if it is a relevant location code for enroute rides
-            queryString = ("SELECT r.rno, r.price, r.rdate, r.seats, r.lugDesc, l2.city, l1.city, r.driver, r.cno FROM locations l1, locations l2, rides r, enroute e \
+            queryString = ("SELECT r.rno, r.price, r.rdate, r.seats, r.lugDesc, l1.city, l2.city, r.driver, r.cno FROM locations l1, locations l2, rides r, enroute e \
                                                    WHERE  e.lcode LIKE '%s' AND e.rno = r.rno AND l1.lcode = r.src AND l2.lcode = r.dst" % word)  # LIKE is case insensitive
             dbcursor.execute(queryString)
             results = dbcursor.fetchall()
-            ridelist = ridelist + results
+            temporaryridelist = temporaryridelist + results
 
             #check if keyword is a substring of city, province, or address for source
             queryString = (("SELECT rno, price, rdate, seats, lugDesc, l1.city, l2.city, driver, cno FROM locations l1, locations l2, rides" 
@@ -56,7 +61,7 @@ def searchForRide(dbcursor):
 
             dbcursor.execute(queryString)
             results = dbcursor.fetchall()
-            ridelist = ridelist + results
+            temporaryridelist = temporaryridelist + results
             #check if keyword is a substring of city, province or address for destination
             queryString = ((
                 "SELECT rno, price, rdate, seats, lugDesc, l2.city, l1.city, driver, cno FROM locations l1, locations l2, rides" 
@@ -65,10 +70,18 @@ def searchForRide(dbcursor):
 
             dbcursor.execute(queryString)
             results = dbcursor.fetchall()
-            ridelist = ridelist + results
+            temporaryridelist = temporaryridelist + results
 
-            temp = list(set(ridelist))
-            ridelist = temp
+            ##at the end of querying, we should compare the temporary ride list with the rides currently in the actual ride list
+            ##Only keep the ones that are in both lists (i.e if there are multiple keywords take the set intersection of each keyword list)
+            if not ridelist:
+                #if the list is currently empty just set the temp list as the ridelist
+                ridelist = list(set(ridelist + temporaryridelist)) #set gets rid of duplicates
+
+            #compare the two lists and only take the intersection https://stackoverflow.com/questions/2864842/common-elements-comparison-between-2-lists
+            else:
+                ridelist = list(set(ridelist) - (set(ridelist) - set(temporaryridelist))) #set also removes duplicates
+
 
         #if no results were returned
         if len(ridelist) == 0:

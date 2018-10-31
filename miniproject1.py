@@ -240,6 +240,7 @@ def mainMenu(dbcursor, member):
             time.sleep(1)
             os.system('clear')
             searchRides.searchForRide(dbcursor)
+             #if user presses back it will return
         elif(user_option == "3"):
             time.sleep(1)
             Bookings(dbcursor,member)
