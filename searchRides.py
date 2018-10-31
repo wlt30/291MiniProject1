@@ -12,6 +12,7 @@ def searchForRide(dbcursor):
         #os.system('clear')
         userInput = input("Please enter up to three keywords or type BACK to leave: ")
         ridelist = []  # will contain all rides that match the keywords
+        os.system('clear')
 
         if userInput.upper()== "EXIT":
             os.system("clear")
@@ -94,10 +95,23 @@ def searchForRide(dbcursor):
             print("Returning Search Results \n")
             for x in range(1,6):
                 if len(ridelist) == 0:
-                    break;
+                    break
                 ride = ridelist.pop()
-                print(("Ride Number: {}, Price: {}, Date: {}, Seats Available: {}, Luggage Allowance: {}" 
-                "\nFROM: {}, TO: {}, Driver: {}, Car: {}\n").format(ride[0], ride[1], ride[2], ride[3], ride[4], ride[5], ride[6], ride[7], ride[8]))
+                print(("{}. Ride Number: {}, Price: {}, Date: {}\nSeats Available: {}, Luggage Allowance: {}" 
+                "\nFROM: {}, TO: {}, Driver: {}\n").format(x, ride[0], ride[1], ride[2], ride[3], ride[4], ride[5], ride[6], ride[7]))
+
+                if ride[8] is None:
+                    #Let the user know there is no car information available
+                    print("No car information available at this time \n\n")
+
+                else:
+                    #query for car information and print it
+                    querystring = ("SELECT make, model, year, seats, owner FROM cars WHERE cno = {}").format(ride[8])
+                    dbcursor.execute(querystring)
+                    carinfo = dbcursor.fetchall()
+                    carinfo = carinfo.pop()
+                    print(("Car Information\nMake: {}, Model: {}, Year: {}, Seats: {}, Owner Email: {}\n\n").format(carinfo[0], carinfo[1],
+                                                                                                                carinfo[2], carinfo[3], carinfo[4]))
 
             time.sleep(2) #get rid of this
 
