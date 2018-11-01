@@ -41,7 +41,7 @@ def messageOwner(dbcursor, rideindex, displayedrides, member):
     print("Returning to Search")
     database.commit()
     time.sleep(2)
-    #os.system('clear')
+
     return
 
 

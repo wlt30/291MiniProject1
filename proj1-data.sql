@@ -102,6 +102,8 @@ insert into requests values (8, 'mj@gmail.com', '2019-01-12', 'ab8', 'ab9', 50);
 insert into requests values (9, 'mj@gmail.com', '2018-11-13', 'ab1', 'ab6', 45);
 insert into requests values (10, 'mj@gmail.com', '2018-12-30', 'bc1', 'ab2', 100);
 insert into requests values (11, 'davood@abc.com', '2018-12-30', 'ab11', 'bc2', 150);
+insert into requests values (12, 'mary@abc.com', '2019-02-12', 'ab3', 'ab4', 40);
+insert into requests values (13, 'kobe@nba.com', '2019-03-12', 'ab7', 'bc1', 40);
 
 INSERT INTO inbox VALUES ('davood@abc.com', '2018-11-03 12:30:34', 'joe@gmail.com', 'I can no longer drive you.', 100, 'y');
 INSERT INTO inbox VALUES ('davood@abc.com', '2018-11-03 16:33:12', 'joe@gmail.com', 'Nevermind. I can drive you again.', 100, 'n');
