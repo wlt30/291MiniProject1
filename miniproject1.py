@@ -420,8 +420,23 @@ def mainMenu(database, dbcursor, member):
 
 def main():
     exiting = False
-    database = sqlite3.connect("testDatabase.db")
-    dbcursor = database.cursor()
+    validDatabase = False
+    while not validDatabase:
+            dbname = input("Please enter the Database file name: ")
+            database = sqlite3.connect(dbname)
+            dbcursor = database.cursor()
+            try:
+                dbcursor.execute("SELECT * FROM members")
+            except:
+                print("Invalid/empty database, please try again")
+                continue
+            members = dbcursor.fetchall()
+            if len(members) == 0:
+                    print("Invalid/empty database, please try again")
+                    continue
+            else:
+                validDatabase = True
+            
     print("Welcome to Ride Finder")
     time.sleep(0.5)
     login_option = entry()
