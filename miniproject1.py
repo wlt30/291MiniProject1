@@ -5,6 +5,7 @@ import getpass
 import os
 import datetime
 import searchRides
+import searchRequests
 
 def exitApp():
         os.system("clear")
@@ -223,11 +224,6 @@ def postRideRequest(dbcursor):
     os.system('clear')
     print("Post Ride Request")
 
-
-def searchAndDeleteRequest(dbcursor):
-    os.system('clear')
-    print("Search and Delete Ride Request")
-
 def mainMenu(dbcursor, member):
     os.system('clear')
     exiting = False
@@ -249,7 +245,7 @@ def mainMenu(dbcursor, member):
             postRideRequest(dbcursor)
         elif(user_option == "5"):
             time.sleep(1)
-            searchAndDeleteRequest(dbcursor)
+            searchRequests.searchAndDeleteRequest(dbcursor)
         elif(user_option == "6"):
             print("Logging out...")
             time.sleep(1)
