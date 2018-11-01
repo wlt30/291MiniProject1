@@ -100,12 +100,12 @@ insert into requests values (6, 'mj@gmail.com', '2018-12-24', 'ab4', 'ab14', 30)
 
 INSERT INTO inbox VALUES ('davood@abc.com', '2018-11-03 12:30:34', 'joe@gmail.com', 'I can no longer drive you.', 100, 'y');
 INSERT INTO inbox VALUES ('davood@abc.com', '2018-11-03 16:33:12', 'joe@gmail.com', 'Nevermind. I can drive you again.', 100, 'n');
-INSERT INTO inbox VALUES ('mary@abc.com', '2018-11-12 13:19:20', 'oneeye@trap.com', 'Should I bring snacks?', 103, 'y');
+INSERT INTO inbox VALUES ('mary@abc.com', '2018-11-12 13:19:20', 'oneeye@trap.ca', 'Should I bring snacks?', 103, 'y');
 INSERT INTO inbox VALUES ('mj@gmail.com', '2018-11-15 11:09:59', 'kobe@nba.com', 'I am better than you.', 116, 'y');
 INSERT INTO inbox VALUES ('kobe@nba.com', '2018-11-03 11:13:34', 'mj@gmail.com', 'No, you are not better than me.', 116, 'n');
 INSERT INTO inbox VALUES ('drake@papi.com', '2018-11-12 11:13:34', 'joe@gmail.com', 'Where are you?', 115, 'y');
 INSERT INTO inbox VALUES ('joe@gmail.com', '2018-11-12 11:16:30', 'drake@papi.com', 'I am standing by the fountain', 115, 'n');
-INSERT INTO inbox VALUES ('paul@a.com', '2018-11-12 15:43:11', 'kobe@nba', 'I will be there in 10 minutes', 105, 'y');
+INSERT INTO inbox VALUES ('paul@a.com', '2018-11-12 15:43:11', 'kobe@nba.com', 'I will be there in 10 minutes', 105, 'y');
 INSERT INTO inbox VALUES ('davood@abc.com', '2018-11-12 20:00:30', 'mary@abc.com', 'Are you ready?', 109, 'y');
 INSERT INTO inbox VALUES ('mary@abc.com', '2018-11-12 20:02:45', 'davood@abc.com', 'Is there room for my friend?', 109, 'n');
 INSERT INTO inbox VALUES ('mj@gmail.com', '2018-11-13 09:22:31', 'paul@a.com', 'Is there room on this ride?', 116, 'y');

@@ -239,7 +239,7 @@ def mainMenu(dbcursor, member):
         elif(user_option == "2"):
             time.sleep(1)
             os.system('clear')
-            searchRides.searchForRide(dbcursor)
+            searchRides.searchForRide(dbcursor, member)
              #if user presses back it will return
         elif(user_option == "3"):
             time.sleep(1)
