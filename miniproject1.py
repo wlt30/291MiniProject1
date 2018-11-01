@@ -245,7 +245,7 @@ def mainMenu(dbcursor, member):
             postRideRequest(dbcursor)
         elif(user_option == "5"):
             time.sleep(1)
-            searchRequests.searchAndDeleteRequest(dbcursor)
+            searchRequests.searchAndDeleteRequest(dbcursor, member)
         elif(user_option == "6"):
             print("Logging out...")
             time.sleep(1)
