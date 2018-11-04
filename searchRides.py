@@ -34,7 +34,7 @@ def messageOwner(dbcursor, rideindex, displayedrides, member):
     else:
         #insert a new message into the table
         dbcursor.execute((
-            "INSERT INTO inbox VALUES ('{}', datetime('now'), '{}', '{}', {}, 'n')").format(owner, member, fetch, rno))
+            "INSERT INTO inbox VALUES (?, datetime('now'), ?, ?, ?, 'n')"), (owner, member, fetch, rno))
 
         print("Message sent...")
 
@@ -73,42 +73,45 @@ def searchForRide(dbcursor, member):
         #For each line we want to query all rides with the relevant key words
         for word in keywords:
             temporaryridelist = []
+            keywordString = word
+
             #Lets check if it is a relevant location code for source
             queryString = ("SELECT rno, price, rdate, seats, lugDesc, l1.city, l2.city, driver, cno FROM locations l1, locations l2, rides \
-                                                   WHERE l1.lcode LIKE '%s' AND l1.lcode = src AND l2.lcode = dst" % word)  #LIKE is case insensitive
-            dbcursor.execute(queryString)
+                                                   WHERE l1.lcode LIKE ? AND l1.lcode = src AND l2.lcode = dst")  #LIKE is case insensitive
+            dbcursor.execute(queryString,(keywordString,)) #prevent sql injection
             results = dbcursor.fetchall()
             temporaryridelist = temporaryridelist + results #append the results to ride list
 
             #check if it is a relevant location code for destination
             queryString = ("SELECT rno, price, rdate, seats, lugDesc, l2.city, l1.city, driver, cno FROM locations l1, locations l2, rides \
-                                       WHERE l1.lcode LIKE '%s' AND l1.lcode = dst AND l2.lcode = src" % word)  # LIKE is case insensitive
-            dbcursor.execute(queryString)
+                                       WHERE l1.lcode LIKE ? AND l1.lcode = dst AND l2.lcode = src")  # LIKE is case insensitive
+            dbcursor.execute(queryString, (keywordString,))
             results = dbcursor.fetchall()
             temporaryridelist = temporaryridelist + results
 
             # check if it is a relevant location code for enroute rides
             queryString = ("SELECT r.rno, r.price, r.rdate, r.seats, r.lugDesc, l1.city, l2.city, r.driver, r.cno FROM locations l1, locations l2, rides r, enroute e \
-                                                   WHERE  e.lcode LIKE '%s' AND e.rno = r.rno AND l1.lcode = r.src AND l2.lcode = r.dst" % word)  # LIKE is case insensitive
-            dbcursor.execute(queryString)
+                                                   WHERE  e.lcode LIKE ? AND e.rno = r.rno AND l1.lcode = r.src AND l2.lcode = r.dst")  # LIKE is case insensitive
+            dbcursor.execute(queryString, (keywordString,))
             results = dbcursor.fetchall()
             temporaryridelist = temporaryridelist + results
+            keywordString = '%%' + word + '%%'
 
             #check if keyword is a substring of city, province, or address for source
             queryString = (("SELECT rno, price, rdate, seats, lugDesc, l1.city, l2.city, driver, cno FROM locations l1, locations l2, rides" 
-                           " WHERE (l1.city LIKE '%%{}%%' OR l1.prov LIKE '%%{}%%' OR l1.address LIKE '%%{}%%')"
-                           " AND l1.lcode = src AND l2.lcode = dst").format(word, word, word))
+                           " WHERE (l1.city LIKE ? OR l1.prov LIKE ? OR l1.address LIKE ?)"
+                           " AND l1.lcode = src AND l2.lcode = dst"))
 
-            dbcursor.execute(queryString)
+            dbcursor.execute(queryString, (keywordString, keywordString, keywordString)) #protect against SQL injection
             results = dbcursor.fetchall()
             temporaryridelist = temporaryridelist + results
             #check if keyword is a substring of city, province or address for destination
             queryString = ((
                 "SELECT rno, price, rdate, seats, lugDesc, l2.city, l1.city, driver, cno FROM locations l1, locations l2, rides" 
-                " WHERE (l1.city LIKE '%%{}%%' OR l1.prov LIKE '%%{}%%' OR l1.address LIKE '%%{}%%')"
-                " AND l1.lcode = dst AND l2.lcode = src").format(word, word, word))
+                " WHERE (l1.city LIKE ? OR l1.prov LIKE ? OR l1.address LIKE ?)"
+                " AND l1.lcode = dst AND l2.lcode = src"))
 
-            dbcursor.execute(queryString)
+            dbcursor.execute(queryString, (keywordString, keywordString, keywordString)) #prevent sql injection
             results = dbcursor.fetchall()
             temporaryridelist = temporaryridelist + results
 

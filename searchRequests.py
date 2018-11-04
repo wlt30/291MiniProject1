@@ -28,11 +28,11 @@ def messageRequestOwner(index, displayedRequests, member):
         return
 
     #now check if the ride actually exists
-    queryString = ("SELECT rno, driver FROM rides WHERE rno = {}").format(rno)
+    queryString = ("SELECT rno, driver FROM rides WHERE rno = ?")
 
     database = sqlite3.connect('testDatabase.db')
     dbcursor = database.cursor()
-    dbcursor.execute(queryString)
+    dbcursor.execute(queryString, (rno,))
     result = dbcursor.fetchall()
 
     if len(result) == 0: #if ride does not exist then return
@@ -60,8 +60,8 @@ def messageRequestOwner(index, displayedRequests, member):
 
     else:
         # insert a new message into the table
-        dbcursor.execute(("INSERT INTO inbox VALUES ('{}', datetime('now'), "
-                          "'{}', '{}', {}, 'n')").format(poster, member, fetch, rno))
+        dbcursor.execute(("INSERT INTO inbox VALUES (?, datetime('now'), "
+                          "?, ?, ?, 'n')"),(poster, member, fetch, rno)) #counter sql injection
 
         print("Message sent...")
 
@@ -218,10 +218,10 @@ def viewOtherRequests(member, dbcursor):
         #query the user input and return rides that match the pickup locations
         #do not include the requests of the current member
         queryString = ("SELECT rid, email, rdate, l1.city, l2.city, amount FROM"
-                   " requests, locations l1, locations l2  WHERE ((l1.lcode LIKE '{}') OR (l1.city LIKE '{}'))"
-                   "AND l1.lcode = pickup AND l2.lcode = dropoff AND email <> '{}'").format(fetch, fetch, member)
+                   " requests, locations l1, locations l2  WHERE ((l1.lcode LIKE ?) OR (l1.city LIKE ?))"
+                   "AND l1.lcode = pickup AND l2.lcode = dropoff AND email <> ?")
 
-        dbcursor.execute(queryString)
+        dbcursor.execute(queryString, (fetch, fetch, member))
         result = dbcursor.fetchall()
 
         if len(result) == 0:
