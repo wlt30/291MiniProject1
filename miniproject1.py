@@ -185,7 +185,7 @@ def offerRide(dbcursor, member):
                     print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
                     continue
             validDate = True
-                                                                                                
+
     while not validNoSeats:
         noSeats = input("Enter the number of seats: ")
         if noSeats.isdigit():
@@ -193,7 +193,7 @@ def offerRide(dbcursor, member):
         else:
             print("Invalid input format, please try again ")
             continue
-                                                                                                
+
     while not validPricePerSeat:
         pricePerSeat = input("Enter a price per seat: ")
         if pricePerSeat.isdigit():
@@ -201,21 +201,21 @@ def offerRide(dbcursor, member):
         else:
             print("Invalid input format, please try again ")
             continue
-        
-                                                                                                
+
+
     while not validLugDesc:
         lugDesc = input("Enter a luggage description (max 10 characters): ")
         if len(lugDesc) >10 or len(lugDesc)==0:
             print("Invalid input format, please try again ")
             continue
         validLugDesc = True
-                                                                                                
+
     while not validSrc:
         entry = input("Enter a source location (max 16 characters): ")
         if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
-        
+
         dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
         srcOptions = dbcursor.fetchall()
         x = 0
@@ -240,7 +240,7 @@ def offerRide(dbcursor, member):
                     else:
                         print("Invalid choice, please try again")
                         x = 0
-                        continue    
+                        continue
         elif(len(srcOptions)==1):
             src = srcOptions[0][0]
             print(srcOptions)
@@ -248,7 +248,7 @@ def offerRide(dbcursor, member):
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
             continue
-    
+
     while not validDst:
         entry = input("Enter a destination location (max 16 characters): ")
         if len(entry) >16 or len(entry)==0:
@@ -278,7 +278,7 @@ def offerRide(dbcursor, member):
                     else:
                         print("Invalid choice, please try again")
                         x = 0
-                        continue    
+                        continue
         elif(len(dstOptions)==1):
             dst = dstOptions[0][0]
             print(dstOptions)
@@ -298,7 +298,7 @@ def offerRide(dbcursor, member):
             validEnroutes = True
             ## only way to pass this step
             continue
-        
+
         dbcursor.execute("SELECT * FROM locations  WHERE lcode LIKE \"%"+stop+"%\"  OR city LIKE \"%"+stop+"%\" OR prov LIKE \"%"+stop+"%\" OR address LIKE \"%"+stop+"%\"")
         stopOptions = dbcursor.fetchall()
         x = 0
@@ -323,13 +323,13 @@ def offerRide(dbcursor, member):
                     else:
                         print("Invalid choice, please try again")
                         x = 0
-                        continue    
+                        continue
         elif(len(stopOptions)==1):
             enroutes.append(stopOptions[0])
             print(stopOptions)
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
-        
+
 
     while not validCar:
         cno = input("Please enter a car number or press ENTER to skip: ")
@@ -358,7 +358,7 @@ def offerRide(dbcursor, member):
     for item in enroutes:
         dbcursor.execute("INSERT INTO enroute VALUES (\"" +rno+"\", \""+item[0]+"\")")
     os.system(cls)
-                
+
 def searchForRide(dbcursor):
     os.system(cls)
     print("Search for a Ride")
@@ -372,10 +372,38 @@ def Bookings(dbcursor,member): #Assume member passed it the user email logged on
         if(user_input == "1"):
             print("Listing current booking you offer\n");
             dbcursor.execute("SELECT * FROM rides where rides.driver = ?", member)
-            #Have a for loop that knows length of current bookings & prints booking 5 at a time
-            #TEST option 1 & Correct
-            #Proceed with listing other  member rides afterwards, except current member
-        elif(use_input == "5"):
+
+
+        #-------------------------------------------- Add to Master ---------------------------------------------
+        elif(user_input == "3"):
+            print("-------------Listing All rides member offers and number of availble seats for each ride -------------\n");
+
+            print("member is: ", member, "\n")
+            dbcursor.execute("SELECT b.bno, r.rno, r.driver, b.email, r.seats, b.seats FROM bookings b, rides r where r.rno = b.rno and r.driver = ?\n", (member,)) #multiple rno, but with differrnt bno tags
+            Booking = dbcursor.fetchall() #all results will be stored into the list of tuples in Bookings
+            i = 0;
+            for row in Booking:
+                print("-------------Listing Rides with Bookings -------------\n");
+                print("|bno: %s|rno: %s|driver: %s|passenger: %s|Ride Seats: %s|Seats Booked: %s|Seats available: %s|\n"%(str(row[0]), str(row[1]), str(row[2]), str(row[3]), str(row[4]), str(row[5]), str(int(row[4] - int(row[5]))) ))
+                i = i+1;
+                if i%5 ==0:
+                    more = input("Print more Rides offered (yes/no)")
+                    if more.lower() == "no":
+                        break
+                    else:
+                        continue
+            dbcursor.execute("SELECT r.rno, r.driver, r.seats from rides r where r.driver =? EXCEPT SELECT r.rno, r.driver, r.seats from rides r, bookings b where r.driver =? and b.rno=r.rno", (member,member,))
+            no_bookings = dbcursor.fetchall();
+            if len(no_bookings) == 0:
+                print("There are no ride with no bookings")
+            else:
+                print("-------------Listing Rides with no Bookings -------------\n")
+                for each in no_bookings:
+                    print("|rno: %s|driver: %s|seats Booked: %s|Seats available: %s|"%(each[0], each[1],each[2],each[2]))
+
+            #-------------------------------------------- Add to Master ---------------------------------------------
+
+        elif(user_input == "5"):
             print("Returning to the Main Menu\n")
             Finished = True
 
@@ -444,7 +472,7 @@ elif((platform.system()) == "Linux"):
     cls = 'clear'
 elif((platform.system()) == "Darwin"):
     cls = 'clear'
-        
+
 def main():
     exiting = False
     validDatabase = False
@@ -463,7 +491,7 @@ def main():
                 continue
         else:
             validDatabase = True
-            
+
     print("Welcome to Ride Finder")
     time.sleep(0.5)
     login_option = entry(database)
@@ -471,7 +499,7 @@ def main():
         member = login(database, dbcursor)
     else:
         member = register(dbcursor)
-        
+
     while not exiting:
         printInbox(database, dbcursor, member)
         mainMenu(database, dbcursor, member)
