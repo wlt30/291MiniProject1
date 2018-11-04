@@ -5,10 +5,12 @@ import getpass
 import os
 import datetime
 import platform
+import searchRides
+import searchRequest
 
 def exitApp(database):
         os.system(cls)
-        print('EXITING\nThank you for using this Ride Finder')
+        print('EXITING...\nThank you for using Ride Finder')
         time.sleep(2)
         database.commit()
         database.close()
@@ -183,7 +185,7 @@ def offerRide(dbcursor, member):
                     print("Invalid date format, please try again (e.g. YYYY-MM-DD)")
                     continue
             validDate = True
-
+                                                                                                
     while not validNoSeats:
         noSeats = input("Enter the number of seats: ")
         if noSeats.isdigit():
@@ -191,7 +193,7 @@ def offerRide(dbcursor, member):
         else:
             print("Invalid input format, please try again ")
             continue
-
+                                                                                                
     while not validPricePerSeat:
         pricePerSeat = input("Enter a price per seat: ")
         if pricePerSeat.isdigit():
@@ -199,21 +201,21 @@ def offerRide(dbcursor, member):
         else:
             print("Invalid input format, please try again ")
             continue
-
-
+        
+                                                                                                
     while not validLugDesc:
         lugDesc = input("Enter a luggage description (max 10 characters): ")
         if len(lugDesc) >10 or len(lugDesc)==0:
             print("Invalid input format, please try again ")
             continue
         validLugDesc = True
-
+                                                                                                
     while not validSrc:
         entry = input("Enter a source location (max 16 characters): ")
         if len(entry) >16 or len(entry)==0:
             print("Invalid input format, please try again ")
             continue
-
+        
         dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
         srcOptions = dbcursor.fetchall()
         x = 0
@@ -238,7 +240,7 @@ def offerRide(dbcursor, member):
                     else:
                         print("Invalid choice, please try again")
                         x = 0
-                        continue
+                        continue    
         elif(len(srcOptions)==1):
             src = srcOptions[0][0]
             print(srcOptions)
@@ -246,7 +248,7 @@ def offerRide(dbcursor, member):
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
             continue
-
+    
     while not validDst:
         entry = input("Enter a destination location (max 16 characters): ")
         if len(entry) >16 or len(entry)==0:
@@ -276,7 +278,7 @@ def offerRide(dbcursor, member):
                     else:
                         print("Invalid choice, please try again")
                         x = 0
-                        continue
+                        continue    
         elif(len(dstOptions)==1):
             dst = dstOptions[0][0]
             print(dstOptions)
@@ -296,7 +298,7 @@ def offerRide(dbcursor, member):
             validEnroutes = True
             ## only way to pass this step
             continue
-
+        
         dbcursor.execute("SELECT * FROM locations  WHERE lcode LIKE \"%"+stop+"%\"  OR city LIKE \"%"+stop+"%\" OR prov LIKE \"%"+stop+"%\" OR address LIKE \"%"+stop+"%\"")
         stopOptions = dbcursor.fetchall()
         x = 0
@@ -321,25 +323,26 @@ def offerRide(dbcursor, member):
                     else:
                         print("Invalid choice, please try again")
                         x = 0
-                        continue
+                        continue    
         elif(len(stopOptions)==1):
             enroutes.append(stopOptions[0])
             print(stopOptions)
         else:
             print("Sorry, we couldn't find any lcode, city, prov or address with that tag")
-
+        
 
     while not validCar:
         cno = input("Please enter a car number or press ENTER to skip: ")
         if cno.isdigit():
             #prevents SQL injection because car_no cannot be "cno" and still get into this SQL call
-            dbcursor.execute("SELECT cno FROM cars WHERE cno = \"" +cno+ "\"")
-            cars = dbcursor.fetchall()
+            dbcursor.execute("SELECT cno, make, model, year, seats FROM cars WHERE cno = \"" +cno+ "\" AND owner = \"" +member+ "\"")
+            cars = dbcursor.fetchone()
             if len(cars) == 0:
-                print("That car was not found, please try again")
+                print("That car was not found or does not belong to you, please try again")
                 continue
             elif len(cars) == 1:
                 validCar = True
+                print(cars)
             else:
                 print("Something went wrong, please try again")
                 continue
@@ -355,7 +358,7 @@ def offerRide(dbcursor, member):
     for item in enroutes:
         dbcursor.execute("INSERT INTO enroute VALUES (\"" +rno+"\", \""+item[0]+"\")")
     os.system(cls)
-
+                
 def searchForRide(dbcursor):
     os.system(cls)
     print("Search for a Ride")
@@ -400,7 +403,7 @@ def mainMenu(database, dbcursor, member):
             database.commit()
         elif(user_option == "2"):
             time.sleep(0.5)
-            searchForRide(dbcursor)
+            searchRides.searchForRide(database, dbcursor, member)
         elif(user_option == "3"):
 
             time.sleep(0.5)
@@ -410,7 +413,7 @@ def mainMenu(database, dbcursor, member):
             postRideRequest(dbcursor)
         elif(user_option == "5"):
             time.sleep(0.5)
-            searchAndDeleteRequest(dbcursor)
+            searchRequest.searchAndDeleteRequest(database, dbcursor, member)
         elif(user_option == "6"):
             print("Logging out...")
             database.commit()
@@ -425,11 +428,15 @@ def mainMenu(database, dbcursor, member):
             print("Not a valid option, please try again")
 
 def printInbox(database, dbcursor, member):
-    dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'y' OR seen = 'Y'")
+    dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'n' OR seen = 'N'")
     inbox = dbcursor.fetchall()
-    for entry in inbox:
-        print(entry)
+    if len(inbox) == 0:
+        print("No unread messages to be displayed")
+    else:
+        for entry in inbox:
+            print(entry)
     print('\n')
+    dbcursor.execute("UPDATE inbox SET seen = 'y' WHERE seen = 'n' OR seen = 'N'")
 
 if((platform.system()) == "Windows"):
     cls = 'cls'
@@ -437,7 +444,7 @@ elif((platform.system()) == "Linux"):
     cls = 'clear'
 elif((platform.system()) == "Darwin"):
     cls = 'clear'
-
+        
 def main():
     exiting = False
     validDatabase = False
@@ -456,17 +463,15 @@ def main():
                 continue
         else:
             validDatabase = True
-
+            
     print("Welcome to Ride Finder")
     time.sleep(0.5)
     login_option = entry(database)
     if(login_option == 1):
-
         member = login(database, dbcursor)
-
     else:
         member = register(dbcursor)
-
+        
     while not exiting:
         printInbox(database, dbcursor, member)
         mainMenu(database, dbcursor, member)
