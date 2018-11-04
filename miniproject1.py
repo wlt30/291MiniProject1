@@ -8,7 +8,7 @@ import platform
 
 def exitApp(database):
         os.system(cls)
-        print('EXITING\nThank you for using this Ride Finder')
+        print('EXITING...\nThank you for using Ride Finder')
         time.sleep(2)
         database.commit()
         database.close()
@@ -427,8 +427,11 @@ def mainMenu(database, dbcursor, member):
 def printInbox(database, dbcursor, member):
     dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'n' OR seen = 'N'")
     inbox = dbcursor.fetchall()
-    for entry in inbox:
-        print(entry)
+    if len(inbox) == 0:
+        print("No unread messages to be displayed")
+    else:
+        for entry in inbox:
+            print(entry)
     print('\n')
     dbcursor.execute("UPDATE inbox SET seen = 'y' WHERE seen = 'n' OR seen = 'N'")
 
