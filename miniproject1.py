@@ -5,6 +5,8 @@ import getpass
 import os
 import datetime
 import platform
+import searchRides
+import searchRequest
 
 def exitApp(database):
         os.system(cls)
@@ -401,7 +403,7 @@ def mainMenu(database, dbcursor, member):
             database.commit()
         elif(user_option == "2"):
             time.sleep(0.5)
-            searchForRide(dbcursor)
+            searchRides.searchForRide(database, dbcursor, member)
         elif(user_option == "3"):
 
             time.sleep(0.5)
@@ -411,7 +413,7 @@ def mainMenu(database, dbcursor, member):
             postRideRequest(dbcursor)
         elif(user_option == "5"):
             time.sleep(0.5)
-            searchAndDeleteRequest(dbcursor)
+            searchRequest.searchAndDeleteRequest(database, dbcursor, member)
         elif(user_option == "6"):
             print("Logging out...")
             database.commit()
@@ -461,22 +463,12 @@ def main():
                 continue
         else:
             validDatabase = True
-
-<<<<<<< HEAD
             
-=======
->>>>>>> be2730051943491908a3773aeb196c413fd9fc85
     print("Welcome to Ride Finder")
     time.sleep(0.5)
     login_option = entry(database)
     if(login_option == 1):
-<<<<<<< HEAD
         member = login(database, dbcursor)
-=======
-
-        member = login(database, dbcursor)
-
->>>>>>> be2730051943491908a3773aeb196c413fd9fc85
     else:
         member = register(dbcursor)
         
