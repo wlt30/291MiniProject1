@@ -425,11 +425,12 @@ def mainMenu(database, dbcursor, member):
             print("Not a valid option, please try again")
 
 def printInbox(database, dbcursor, member):
-    dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'y' OR seen = 'Y'")
+    dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'n' OR seen = 'N'")
     inbox = dbcursor.fetchall()
     for entry in inbox:
         print(entry)
     print('\n')
+    dbcursor.execute("UPDATE inbox SET seen = 'y' WHERE seen = 'n' OR seen = 'N'")
 
 if((platform.system()) == "Windows"):
     cls = 'cls'
