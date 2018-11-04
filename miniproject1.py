@@ -424,6 +424,13 @@ def mainMenu(database, dbcursor, member):
         else:
             print("Not a valid option, please try again")
 
+def printInbox(database, dbcursor, member):
+    dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'y' OR seen = 'Y'")
+    inbox = dbcursor.fetchall()
+    for entry in inbox:
+        print(entry)
+    print('\n')
+
 if((platform.system()) == "Windows"):
     cls = 'cls'
 elif((platform.system()) == "Linux"):
@@ -435,37 +442,33 @@ def main():
     exiting = False
     validDatabase = False
     while not validDatabase:
-            dbname = input("Please enter the Database file name: ")
-            database = sqlite3.connect(dbname)
-            dbcursor = database.cursor()
-            try:
-                dbcursor.execute("SELECT * FROM members")
-            except:
+        dbname = input("Please enter the Database file name: ")
+        database = sqlite3.connect(dbname)
+        dbcursor = database.cursor()
+        try:
+            dbcursor.execute("SELECT * FROM members")
+        except:
+            print("Invalid/empty database, please try again")
+            continue
+        members = dbcursor.fetchall()
+        if len(members) == 0:
                 print("Invalid/empty database, please try again")
                 continue
-            members = dbcursor.fetchall()
-            if len(members) == 0:
-                    print("Invalid/empty database, please try again")
-                    continue
-            else:
-                validDatabase = True
-
-    if((platform.system()) == "Windows"):
-        cls = 'cls'
-    elif((platform.system()) == "Linux"):
-        cls = 'clear'
-    elif((platform.system()) == "Darwin"):
-        cls = 'clear'
+        else:
+            validDatabase = True
 
     print("Welcome to Ride Finder")
     time.sleep(0.5)
     login_option = entry(database)
     if(login_option == 1):
-        member = login(dbname,dbcursor)
+
+        member = login(database, dbcursor)
+
     else:
         member = register(dbcursor)
 
     while not exiting:
+        printInbox(database, dbcursor, member)
         mainMenu(database, dbcursor, member)
         database.commit()
     # main activity, will continue to run unless explicitly exited
