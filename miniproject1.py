@@ -462,12 +462,21 @@ def main():
         else:
             validDatabase = True
 
+<<<<<<< HEAD
             
+=======
+>>>>>>> be2730051943491908a3773aeb196c413fd9fc85
     print("Welcome to Ride Finder")
     time.sleep(0.5)
     login_option = entry(database)
     if(login_option == 1):
+<<<<<<< HEAD
         member = login(database, dbcursor)
+=======
+
+        member = login(database, dbcursor)
+
+>>>>>>> be2730051943491908a3773aeb196c413fd9fc85
     else:
         member = register(dbcursor)
         
