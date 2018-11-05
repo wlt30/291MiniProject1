@@ -4,32 +4,48 @@ import sqlite3
 import getpass
 import os
 import datetime
+import platform
+import offerRide
+import searchRides
+import searchRequest
+import Bookings
+import postRideRequest
 
-def exitApp():
-        os.system("cls")
-        print('EXITING\nThank you for using this Ride Finder')
+if((platform.system()) == "Windows"):
+    cls = 'cls'
+elif((platform.system()) == "Linux"):
+    cls = 'clear'
+elif((platform.system()) == "Darwin"):
+    cls = 'clear'
+
+def exitApp(database):
+        os.system(cls)
+        print('EXITING...\nThank you for using Ride Finder')
         time.sleep(2)
+        database.commit()
+        database.close()
+        database.close()
         sys.exit()
 
-def entry():
+def entry(database):
     #controlled login screen, only allows for Login and Register options
     login_option = 0
     while(login_option<1 or login_option>2):
         login_option = (input("Select 1 to login as an existing user, or press 2 to register\nAt any point, type EXIT to end your session\n"))
         if login_option.upper() == "EXIT":
-            exitApp()
+            exitApp(database)
         if not (login_option[0].isdigit()):
             print("Invalid entry, please try again")
             time.sleep(1)
             login_option = 0
-            os.system('cls')
+            os.system(cls)
         else:
             login_option = int(login_option)
-            os.system('cls')
+            os.system(cls)
     return login_option
 
-def login(dbcursor):
-    os.system('cls')
+def login(database, dbcursor):
+    os.system(cls)
     validEmail = False
     validPass = False
     print("LOGIN\nAt any point, type BACK to go back")
@@ -37,9 +53,9 @@ def login(dbcursor):
         # receives user input for email and checks the validity of this email address in the database
         email = input("Email address: ")
         if(email.upper() == "EXIT"):
-            exitApp()
+            exitApp(database)
         if(email.upper() == "BACK"):
-            entry()
+            entry(database)
         dbcursor.execute("SELECT email FROM members WHERE email = \""+email +"\"")
         emailList = dbcursor.fetchall()
         if len(emailList)>0 and email != "email":
@@ -47,7 +63,7 @@ def login(dbcursor):
             validEmail = True
         if not validEmail:
             print("An account with that email does not exist, please try again")
-        
+
     while not validPass:
         # receives hidden user input for password and checks validity of this password for the given email address
         password = getpass.getpass("Password: ")
@@ -66,7 +82,7 @@ def login(dbcursor):
     time.sleep(1)
 
 def register(dbcursor):
-    os.system('cls')
+    os.system(cls)
     print("REGISTER\nPlease provide the following:")
     availableEmail = False
     validName = False
@@ -89,7 +105,7 @@ def register(dbcursor):
             availableEmail = True
         if not availableEmail:
             print("An account with that email already exists")
-            
+
     while not validName:
         name = input("Name (max 20 characters): ")
         if(name.upper() == "EXIT"):
@@ -103,7 +119,7 @@ def register(dbcursor):
             continue
         else:
             validName = True
-    
+
     while not validPhone:
         phone = input("Phone (e.g.123-555-1234): ")
         if(phone.upper() == "EXIT"):
@@ -139,157 +155,75 @@ def register(dbcursor):
     print("Registration successful")
     return email
 
-def offerRide(dbcursor):
-    os.system('cls')
-    print("Offer a Ride")
-    validDate = False
-    validNoSeats = False
-    validPricePerSeat = False
-    validLugDesc = False
-    validSrc = False
-    validDst = False
-    car_no = -1
-    enroutes = []
 
-    while not validDate:
-        date = input("Enter ride date (e.g. YYYY-MM-DD): ")
-        if (len(date) != 10) or (date[4]!="-") or (date[7]!='-'):
-            print("Invalid date format, please try again (e.g. 2018-01-01)")
-            continue
-        else:
-             validDate = True
-                                                                                                
-    while not validNoSeats:
-        noSeats = input("Enter the number of seats: ")
-        try:
-            noSeats = int(noSeats)
-        except:
-            print("Invalid input format, please try again ")
-            continue
-        validNoSeats = True
-                                                                                                
-    while not validPricePerSeat:
-        pricePerSeat = input("Enter a price per seat: ")
-        try:
-            pricePerSeat = int(pricePerSeat)
-        except:
-            print("Invalid input format, please try again ")
-            continue
-        validPricePerSeat = True
-                                                                                                
-    while not validLugDesc:
-        lugDesc = input("Enter a luggage description (max 10 characters): ")
-        if len(lugDesc) >10 or len(lugDesc)==0:
-            print("Invalid input format, please try again ")
-            continue
-        validLugDesc = True
-                                                                                                
-    while not validSrc:
-        entry = input("Enter a source location (max 16 characters): ")
-        if len(entry) >16 or len(entry)==0:
-            print("Invalid input format, please try again ")
-            continue
-        dbcursor.execute("SELECT * FROM locations WHERE lcode LIKE \"%"+entry+"%\"  OR city LIKE \"%"+entry+"%\" OR prov LIKE \"%"+entry+"%\" OR address LIKE \"%"+entry+"%\"")
-        srcOptions = dbcursor.fetchall()
-        noMenus = (len(srcOptions)%5)+1
-        validSrcChoice = False
-        if len(srcOptions)>1:
-            for page in range(0,noMenus):
-                for x in range(page*5,page*5+5):
-                        try:
-                            print(str(x+1) +". " +str(srcOptions[x]))
-                        except:
-                            continue
-                while not validSrcChoice:
-                    choice = input("Please select location by option number or press ENTER for more options")
-                    if choice == '\n':
-                        continue
-                    try:
-                        choice = int(choice) -1
-                        validSrcChoice = True
-                        break
-                    except:
-                        print("Invalid selection")
-                break
-            src = srcOptions[choice]
-        else:
-            src = srcOptions[0]
-
-
-        
-    while not validDst:
-        dst = input("Enter a destination location (max 16 characters): ")
-        if len(dst) >5 or len(dst)==0:
-            print("Invalid input format, please try again ")
-            continue
-        validDst = True
-        
-    
-def searchForRide(dbcursor):
-    os.system('cls')
-    print("Search for a Ride")
-    
-    
-def bookMemberOrCancelBooking(dbcursor):
-    os.system('cls')
-    print("Book Member or Cancel Booking")
-    
-    
-def postRideRequest(dbcursor):
-    os.system('cls')
-    print("Post Ride Request")
-    
-    
-def searchAndDeleteRequest(dbcursor):
-    os.system('cls')
-    print("Search and Delete Ride Request")
-
-def mainMenu(dbcursor, member):
-    os.system('cls')
+def mainMenu(database, dbcursor, member):
+    os.system(cls)
     exiting = False
     while not exiting:
         user_option = input("What would you like to do?\n1.Offer a Ride\n2.Search for Rides\n3.Book Members or Cancel Bookings\n4.Post Ride Request\n5.Search and Delete Ride Request\n6.Logout\nAt any point, type EXIT to end your session\n")
         if(user_option == "1"):
             time.sleep(0.5)
-            offerRide(dbcursor)
+            offerRide.offerRide(dbcursor, member)
+            database.commit()
         elif(user_option == "2"):
             time.sleep(0.5)
-            searchForRide(dbcursor)
+            searchRides.searchForRide(database, dbcursor, member)
+            database.commit()
         elif(user_option == "3"):
             time.sleep(0.5)
-            bookMemberOrCancelBooking(dbcursor)
+            Bookings.Bookings(dbcursor, member)
+            database.commit()
         elif(user_option == "4"):
             time.sleep(0.5)
-            postRideRequest(dbcursor)
+            postRideRequest.postRideRequest(dbcursor, member)
+            database.commit()
         elif(user_option == "5"):
             time.sleep(0.5)
-            searchAndDeleteRequest(dbcursor)
+            searchRequest.searchAndDeleteRequest(database, dbcursor, member)
+            database.commit()
         elif(user_option == "6"):
             print("Logging out...")
+            database.commit()
+            database.close()
             time.sleep(1)
-            os.system('cls')
+            os.system(cls)
             main()
         elif(user_option.upper() == "EXIT"):
-            exitApp()
+            exitApp(database)
+            # only way to properly exit the program
         else:
             print("Not a valid option, please try again")
 
+def printInbox(database, dbcursor, member):
+    dbcursor.execute("SELECT msgTimestamp, sender, content, rno FROM inbox WHERE email =\""+member+"\" AND seen = 'n' OR seen = 'N'")
+    inbox = dbcursor.fetchall()
+    if len(inbox) == 0:
+        print("No unread messages to be displayed")
+    else:
+        for entry in inbox:
+            print(entry)
+    print('\n')
+    dbcursor.execute("UPDATE inbox SET seen = 'y' WHERE seen = 'n' OR seen = 'N'")
+        
 def main():
     exiting = False
-    database = sqlite3.connect("testDatabase.db")
+    dbname = input("Please enter the Database file name: ")
+    database = sqlite3.connect(dbname)
     dbcursor = database.cursor()
+            
     print("Welcome to Ride Finder")
     time.sleep(0.5)
-    login_option = entry()
+    login_option = entry(database)
     if(login_option == 1):
-        member = login(dbcursor)
+        member = login(database, dbcursor)
     else:
         member = register(dbcursor)
-        database.commit()
-    mainMenu(dbcursor, member)
-    # main activity, will continue to run unless explicitly exited    
+        
+    while not exiting:
+        printInbox(database, dbcursor, member)
+        mainMenu(database, dbcursor, member)
+    # main activity, will continue to run unless explicitly exited
+
     if exiting:
-        database.commit()
-        database.close()
         exitApp()
 main()
