@@ -33,3 +33,8 @@ Title: DB-API 2.0 interface for SQLite databases
 URL: https://docs.python.org/2/library/sqlite3.html
 Author: 
 Date: 
+
+Title: Introduction to SQLite in Python
+URL: https://www.pythoncentral.io/introduction-to-sqlite-in-python/
+Author: Andres Torres
+Date: April 11, 2013
