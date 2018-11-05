@@ -28,3 +28,8 @@ Title: A thorough guide to sqlite database operations in Python
 URL: https://sebastianraschka.com/Articles/2014_sqlite_in_python_tutorial.html
 Author: Sebastian Raschka
 Date: March 7, 2014
+
+Title: DB-API 2.0 interface for SQLite databases
+URL: https://docs.python.org/2/library/sqlite3.html
+Author: 
+Date: 
